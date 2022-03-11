@@ -11,7 +11,7 @@ entity ReadPort is
     BusIn : in std_logic_vector(31 downto 0);
     address : in std_logic_vector(31 downto 0);
     LireMem_W, LireMem_UB, LireMem_SB, LireMem_UH, LireMem_SH : in std_logic;
-    BusOut : out std_logic_vector(31 downto 0);
+    BusOut : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -39,21 +39,21 @@ begin
   ones_24 <= (others => '1');
   zeros_24 <= (others => '0');
 
-  HW <= BusIn(15 downto 0) when not address(1) else
+  HW <= BusIn(15 downto 0) when address(1)= '0' else
         BusIn(31 downto 0);
 
-  B <= BusIn(7 downto 0) when (not address(1)) and (not address(0)) else
-       BusIn(15 downto 8) when (not address(1)) and address(0) else
-       BusIn(23 downto 16) when address(1) and (not address(0)) else
+  B <= BusIn(7 downto 0) when (address(1)= '0') and (address(0)= '0') else
+       BusIn(15 downto 8) when (address(1)= '0') and address(0)= '1' else
+       BusIn(23 downto 16) when address(1)= '1' and (address(0)= '0') else
        BusIn(31 downto 24);
   
   b7 <= B(7);
   b15 <= HW(15);
   
-  BusOut <= BusIn when C(0) else
-            ones_16 & HW when C(2) and C(6) else
-            zeros_16 & HW when C(2) and C(5) else
-            ones_24 & B when C(1) and C(6) else
+  BusOut <= BusIn when C(0)= '1' else
+            ones_16 & HW when C(2)= '1' and C(6)='1' else
+            zeros_16 & HW when C(2)= '1' and C(5)='1' else
+            ones_24 & B when C(1)='1' and C(6)='1' else
             zeros_24 & B;
 end architecture;
 
@@ -70,19 +70,19 @@ entity WritePort is
     address, data_in, current_mem : in std_logic_vector(31 downto 0);
     
     EcrireMem_W, EcrireMem_H, EcrireMem_B : std_logic;
-    data_out : out std_logic_vector(31 downto 0);
+    data_out : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture arch_WP of WritePort is
 begin
-  data_out <= data_in when EcrireMem_W else
-              current_mem(31 downto 16) & data_in(15 downto 0) when EcrireMem_H and not address(1) else
-              data_in(15 downto 0) & current_mem(15 downto 0) when EcrireMem_H and address(1) else
-              current_mem(31 downto 8) & data_in(7 downto 0) when EcrireMem_B and (not address(0)) and (not address(1)) else
-              current_mem(31 downto 16) & data_in(7 downto 0)&current_mem(7 downto 0)  when EcrireMem_B and address(0) and (not address(1)) else
-              current_mem(31 downto 24) & data_in(7 downto 0)&current_mem(15 downto 0)  when EcrireMem_B and (not address(0)) and address(1) else
-              data_in(7 downto 0)&current_mem(23 downto 0)  when EcrireMem_B and address(0) and address(1) else
+  data_out <= data_in when EcrireMem_W='1' else
+              current_mem(31 downto 16) & data_in(15 downto 0) when EcrireMem_H= '1' and address(1)='0' else
+              data_in(15 downto 0) & current_mem(15 downto 0) when EcrireMem_H='1' and address(1)='1' else
+              current_mem(31 downto 8) & data_in(7 downto 0) when EcrireMem_B='1' and (address(0)='0') and (address(1)='0') else
+              current_mem(31 downto 16) & data_in(7 downto 0)&current_mem(7 downto 0)  when EcrireMem_B= '1' and address(0)='1' and (address(1)='0') else
+              current_mem(31 downto 24) & data_in(7 downto 0)&current_mem(15 downto 0)  when EcrireMem_B='1' and (address(0)='0') and address(1)='1' else
+              data_in(7 downto 0)&current_mem(23 downto 0)  when EcrireMem_B='1' and address(0)='1' and address(1)='1' else
               (others => 'X');
 end architecture;
               
@@ -110,18 +110,19 @@ end entity;
 architecture arch_memory of memory is
   TYPE memory_array IS ARRAY(NATURAL RANGE<>) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
   signal mem : memory_array(0 to 2047); -- 64KBytes
-  signal output_sig : STD_LOGIC_VECTOR(31 downto 0);
+  signal output_sig, s_addr : STD_LOGIC_VECTOR(31 downto 0);
   signal word : std_logic_vector(31 downto 0);
-  variable addr : integer := to_integer(unsigned(address(31 downto 2)));
   signal to_write : std_logic_vector(31 downto 0);
 begin
+
+  
   --Reading from memory
   data_out <= (others=> 'Z') when CS = '1' or OE = '1' else
               (others=> '0') when  WE = '0' else
-              (others=> 'X') when (addr > 2047) else
+              (others=> 'X') when (to_integer(unsigned(s_addr)) > 2047) else
               output_sig;
-  
-  word <= memory_array(addr);
+  s_addr <= address(31 downto 2);
+  word <= mem(to_integer(unsigned(s_addr)));
   memRdCtrl : entity work.ReadPort
     port map(word, address, LireMem_W, LireMem_UB, LireMem_SB, LireMem_UH, LireMem_SH, output_sig);
 
@@ -129,9 +130,54 @@ begin
     port map(address, data_in, word, EcrireMem_W, EcrireMem_H, EcrireMem_B, to_write);
   --Writing to memory
   process(CLK)
+    variable addr : integer := to_integer(unsigned(address(31 downto 2)));
   begin
     if(rising_edge(CLK) and WE = '0' and CS = '0') then
       mem(addr) <= to_write;
     end if;
   end process;
 end architecture;
+
+
+-------------------------------------------------------
+
+-- Simplified memory interface
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+
+entity inst_mem is
+  port (
+    addr : in std_logic_vector(31 downto 0);
+    clk: in std_logic;
+    instr : out std_logic_vector(31 downto 0)
+    );
+end entity;
+
+
+architecture arch_inst_mem of inst_mem is
+
+begin
+
+  mem: entity work.memory
+    port map(
+      address => addr,
+      CS =>'0',
+      WE =>'1',
+      OE =>'0',
+      CLK => clk,
+      LireMem_W => '1',
+      LireMem_UB => '0',
+      LireMem_SB => '0',
+      LireMem_UH => '0',
+      LireMem_SH => '0',
+      EcrireMem_W => '0',
+      EcrireMem_H => '0',
+      EcrireMem_B => '0',
+      data_in => (others=>'0'),
+      data_out => instr
+      );
+end architecture;
+

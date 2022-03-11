@@ -62,7 +62,7 @@ ENTITY ALU IS
 		B : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 		Res : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-                CC : OUT STD_LOGIC(3 downto 0);
+                CC : OUT STD_LOGIC_VECTOR(3 downto 0)
 		
 	);
 END ENTITY ALU;
@@ -93,8 +93,8 @@ begin
 
   Z <= not Zint(31);
   N <= addSig(31);
-  V <= (not sel(2)) and (not (A(31) xor B(31) xor sel(0))) and (A(31) xor c31);
-  C <= c31 xor sel(2);
+  V <= (not sel(1)) and (not (A(31) xor B(31) xor sel(0))) and (A(31) xor c31);
+  C <= c31 xor sel(1);
 
   CC <= N & Z & C & V;
   Res <= resint;
@@ -112,14 +112,16 @@ USE IEEE.NUMERIC_STD.ALL;
 entity extension is
   port(
     immIn : in std_logic_vector(23 downto 0);
-    immSrc : in std_logic(1 downto 0);
+    immSrc : in std_logic_vector(1 downto 0);
     ExtOut : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture arch_ext of extension is
   signal extImm12, extImm24: std_logic_vector(31 downto 0);
-  signal extSign: std_logic_vector(19 downto 0);
+  signal extSign20: std_logic_vector(19 downto 0);
+  signal extSign8: std_logic_vector(7 downto 0);
+  
   signal zeros: std_logic_vector(7 downto 0);
 begin
   extSign20 <= (others => immIn(11))when immSrc(0) = '0' else

@@ -74,10 +74,10 @@ begin
     if(wr_reg='1' and rising_edge(clk)) then
       dest := to_integer(unsigned(dest_reg));
       regs(dest)<=data_i;
-      if dest != 15 then
+      if dest /= 15 then
         regs(15)<= pc_in;
     end if;
-    
+    end if;
   end process;
   
 end architecture;
