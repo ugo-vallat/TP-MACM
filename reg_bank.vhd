@@ -18,7 +18,7 @@ entity Reg32 is
   PORT(
     source: in std_logic_vector(31 downto 0);
     output : out std_logic_vector(31 downto 0);
-    wr, clk : in std_logic
+    wr, raz, clk : in std_logic
     );
 end entity;
 
@@ -28,9 +28,13 @@ begin
   output <= sig;
   process(clk)
   begin
-    if(rising_edge(clk)) then
-      if(wr = '1') then
-        sig <= source;    
+    if raz = '0' then
+      sig <= (others => '0');
+    else
+      if(rising_edge(clk)) then
+        if(wr = '1') then
+          sig <= source;    
+        end if;
       end if;
     end if;
   end process;
@@ -48,7 +52,7 @@ entity Reg4 is
   PORT(
     source: in std_logic_vector(3 downto 0);
     output : out std_logic_vector(3 downto 0);
-    wr, clk : in std_logic
+    wr, raz, clk : in std_logic
     );
 end entity;
 
@@ -58,9 +62,13 @@ begin
   output <= sig;
   process(clk)
   begin
-    if(rising_edge(clk)) then
-      if(wr = '1') then
-        sig <= source;    
+     if raz = '0' then
+      sig <= (others => '0');
+    else
+      if(rising_edge(clk)) then
+        if(wr = '1') then
+          sig <= source;    
+        end if;
       end if;
     end if;
   end process;
@@ -86,7 +94,6 @@ ENTITY RegisterBank IS
 		dest_reg : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		data_i : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
                 pc_in : in STD_LOGIC_VECTOR(31 downto 0);
-                pc_out : out STD_LOGIC_VECTOR(31 downto 0);
 		wr_reg : IN STD_LOGIC;
 		clk : IN STD_LOGIC
 	);
@@ -97,17 +104,14 @@ architecture arch_reg_bank of RegisterBank IS
   signal regs : bus_mux_array(31 downto 0);
 
 begin
-  data_o_0 <= regs(to_integer(unsigned(s_reg_0)));
-  data_o_1 <= regs(to_integer(unsigned(s_reg_1)));
+  data_o_0 <= pc_in when to_integer(unsigned(s_reg_0)) = 15 else regs(to_integer(unsigned(s_reg_0)));
+  data_o_1 <= pc_in when to_integer(unsigned(s_reg_1)) = 15 else regs(to_integer(unsigned(s_reg_1)));
   process(clk)
     variable dest: integer;  
   begin
     if(wr_reg='1' and rising_edge(clk)) then
       dest := to_integer(unsigned(dest_reg));
       regs(dest)<=data_i;
-      if dest /= 15 then
-        regs(15)<= pc_in;
-    end if;
     end if;
   end process;
   
