@@ -8,13 +8,13 @@ END PACKAGE bus_mux_pkg;
 
 -------------------------------------------------
 
--- Register (For PC storage and register files)
+-- 32 bits Register (For PC storage and register files)
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-entity Reg is
+entity Reg32 is
   PORT(
     source: in std_logic_vector(31 downto 0);
     output : out std_logic_vector(31 downto 0);
@@ -22,7 +22,7 @@ entity Reg is
     );
 end entity;
 
-architecture arch_reg of Reg is
+architecture arch_reg of Reg32 is
   signal sig : std_logic_vector(31 downto 0):=(others => '0');
 begin
   output <= sig;
@@ -38,6 +38,37 @@ end architecture;
           
 -------------------------------------------------
 
+-- 4 bits Register (For PC storage and register files)
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+entity Reg4 is
+  PORT(
+    source: in std_logic_vector(3 downto 0);
+    output : out std_logic_vector(3 downto 0);
+    wr, clk : in std_logic
+    );
+end entity;
+
+architecture arch_reg of Reg4 is
+  signal sig : std_logic_vector(3 downto 0):=(others => '0');
+begin
+  output <= sig;
+  process(clk)
+  begin
+    if(rising_edge(clk)) then
+      if(wr = '1') then
+        sig <= source;    
+      end if;
+    end if;
+  end process;
+end architecture;
+
+
+-------------------------------------------------
+
 -- Register bank
 
 LIBRARY IEEE;
@@ -48,11 +79,11 @@ USE work.bus_mux_pkg.ALL;
 ENTITY RegisterBank IS
 	PORT
 	(
-		s_reg_0 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+		s_reg_0 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		data_o_0 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		s_reg_1 : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+		s_reg_1 : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		data_o_1 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		dest_reg : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+		dest_reg : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		data_i : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
                 pc_in : in STD_LOGIC_VECTOR(31 downto 0);
                 pc_out : out STD_LOGIC_VECTOR(31 downto 0);
