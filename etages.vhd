@@ -34,6 +34,8 @@ end architecture;
 -- USE IEEE.STD_LOGIC_1164.ALL;
 -- USE IEEE.NUMERIC_STD.ALL;
 
+-- entity etageDE is
+-- end entity
 
 -- -------------------------------------------------
 
@@ -43,6 +45,8 @@ end architecture;
 -- USE IEEE.STD_LOGIC_1164.ALL;
 -- USE IEEE.NUMERIC_STD.ALL;
 
+-- entity etageEX is
+-- end entity
 -- -------------------------------------------------
 
 -- -- Etage ME
@@ -51,6 +55,8 @@ end architecture;
 -- USE IEEE.STD_LOGIC_1164.ALL;
 -- USE IEEE.NUMERIC_STD.ALL;
 
+-- entity etageME is
+-- end entity
 -- -------------------------------------------------
 
 -- -- Etage ER
@@ -58,3 +64,6 @@ end architecture;
 -- LIBRARY IEEE;
 -- USE IEEE.STD_LOGIC_1164.ALL;
 -- USE IEEE.NUMERIC_STD.ALL;
+
+-- entity etageER is
+-- end entity

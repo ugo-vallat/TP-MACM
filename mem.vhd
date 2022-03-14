@@ -103,6 +103,7 @@ entity memory is
     LireMem_W, LireMem_UB, LireMem_SB, LireMem_UH, LireMem_SH : in std_logic;
     EcrireMem_W, EcrireMem_H, EcrireMem_B : std_logic;
     data_in : in std_logic_vector(31 downto 0);
+    init: in std_logic;
     data_out : out std_logic_vector(31 downto 0)
     );
 end entity;
@@ -114,14 +115,14 @@ architecture arch_memory of memory is
   signal word : std_logic_vector(31 downto 0);
   signal to_write : std_logic_vector(31 downto 0);
 begin
-
+  
   
   --Reading from memory
   data_out <= (others=> 'Z') when CS = '1' or OE = '1' else
               (others=> '0') when  WE = '0' else
               (others=> 'X') when (to_integer(unsigned(s_addr)) > 2047) else
               output_sig;
-  s_addr <= address(31 downto 2);
+  s_addr <= "00"&address(31 downto 2);
   word <= mem(to_integer(unsigned(s_addr)));
   memRdCtrl : entity work.ReadPort
     port map(word, address, LireMem_W, LireMem_UB, LireMem_SB, LireMem_UH, LireMem_SH, output_sig);
@@ -129,14 +130,97 @@ begin
   memWrCtrl : entity work.WritePort
     port map(address, data_in, word, EcrireMem_W, EcrireMem_H, EcrireMem_B, to_write);
   --Writing to memory
-  process(CLK)
+  process(CLK, init)
     variable addr : integer := to_integer(unsigned(address(31 downto 2)));
+
   begin
-    if(rising_edge(CLK) and WE = '0' and CS = '0') then
-      mem(addr) <= to_write;
-    end if;
+    if(init='1') then -- initialize memory
+      mem(0) <= "00000000000000000000000000000000";
+      mem(1) <= "00000000000000000000000000000001";
+      mem(2) <= "00000000000000000000000000000011";
+      mem(3) <= "00000000000000000000000000000100";
+      mem(4) <= "00000000000000000000000000000101";
+      mem(5) <= "00000000000000000000000000000110";
+      mem(6) <= "00000000000000000000000000000111";
+      mem(7) <= "00000000000000000000000000001000";
+      mem(8) <= "00000000000000000000000000001001";
+      mem(9) <= "00000000000000000000000000001010";
+      mem(10) <= "00000000000000000000000000001011";
+      mem(11) <= "00000000000000000000000000001100";
+      mem(12) <= "00000000000000000000000000001101";
+      mem(13) <= "00000000000000000000000000001110";
+      mem(14) <= "00000000000000000000000000001111";
+      mem(15) <= "00000000000000000000000000010000";
+      mem(16) <= "00000000000000000000000000010001";
+      mem(17) <= "00000000000000000000000000010010";
+      mem(18) <= "00000000000000000000000000010011";
+      mem(19) <= "00000000000000000000000000010100";
+      mem(20) <= "00000000000000000000000000010101";
+      else
+        if(rising_edge(CLK) and WE = '0' and CS = '0') then
+          mem(addr) <= to_write;
+        end if;
+      end if; 
   end process;
 end architecture;
+
+-----------------------------------------------
+
+-- IMEM, alternative implementation
+
+library IEEE; 
+use IEEE.STD_LOGIC_1164.all; use STD.TEXTIO.all;
+use IEEE.NUMERIC_STD.all;  
+entity imem is -- instruction memory
+  port(a:  in  STD_LOGIC_VECTOR(31 downto 0);
+       rd: out STD_LOGIC_VECTOR(31 downto 0));
+end;
+architecture behave of imem is -- instruction memory
+begin
+  process is
+    file mem_file: TEXT;
+    variable L: line;
+    variable ch: character;
+    variable i, index, result: integer;
+    variable conv : std_logic_vector(3 downto 0);
+    type ramtype is array (63 downto 0) of 
+                    STD_LOGIC_VECTOR(31 downto 0);
+    variable mem: ramtype;
+  begin
+    -- initialize memory from file
+    for i in 0 to 63 loop -- set all contents low
+      mem(i) := (others => '0'); 
+    end loop;
+    index := 0; 
+    FILE_OPEN(mem_file, "memfile.dat", READ_MODE);
+    while not endfile(mem_file) loop
+      readline(mem_file, L);
+      result := 0;
+      for i in 1 to 8 loop
+        read(L, ch);
+        if '0' <= ch and ch <= '9' then 
+            result := character'pos(ch) - character'pos('0');
+        elsif 'a' <= ch and ch <= 'f' then
+           result := character'pos(ch) - character'pos('a')+10;
+        elsif 'A' <= ch and ch <= 'F' then
+           result := character'pos(ch) - character'pos('A')+10;
+        else report "Format error on line " & integer'image(index)
+             severity error;
+        end if;
+        --conv := std_logic_vector(result);
+        mem(index)(35-i*4 downto 32-i*4) := --conv;
+          std_logic_vector(to_unsigned(result, 4));
+      end loop;
+      index := index + 1;
+    end loop;
+
+    -- read memory
+    loop
+      rd <= mem(to_integer(unsigned(a(7 downto 2)))); 
+      wait on a;
+    end loop;
+  end process;
+end;
 
 
 -------------------------------------------------------
@@ -151,33 +235,39 @@ USE IEEE.NUMERIC_STD.ALL;
 entity inst_mem is
   port (
     addr : in std_logic_vector(31 downto 0);
-    clk: in std_logic;
     instr : out std_logic_vector(31 downto 0)
     );
 end entity;
 
-
 architecture arch_inst_mem of inst_mem is
-
 begin
 
-  mem: entity work.memory
-    port map(
-      address => addr,
-      CS =>'0',
-      WE =>'1',
-      OE =>'0',
-      CLK => clk,
-      LireMem_W => '1',
-      LireMem_UB => '0',
-      LireMem_SB => '0',
-      LireMem_UH => '0',
-      LireMem_SH => '0',
-      EcrireMem_W => '0',
-      EcrireMem_H => '0',
-      EcrireMem_B => '0',
-      data_in => (others=>'0'),
-      data_out => instr
-      );
+  mem: entity work.imem
+    port map(addr, instr);
 end architecture;
+-- architecture arch_inst_mem of inst_mem is
+
+-- begin
+
+--   mem: entity work.memory
+--     port map(
+--       address => addr,
+--       CS =>'0',
+--       WE =>'1',
+--       OE =>'0',
+--       CLK => clk,
+--       LireMem_W => '1',
+--       LireMem_UB => '0',
+--       LireMem_SB => '0',
+--       LireMem_UH => '0',
+--       LireMem_SH => '0',
+--       EcrireMem_W => '0',
+--       EcrireMem_H => '0',
+--       EcrireMem_B => '0',
+--       data_in => (others=>'0'),
+--       init => init,
+--       data_out => instr
+--       );
+-- end architecture;
+
 
