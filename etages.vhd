@@ -19,7 +19,7 @@ architecture etageFE_arch of etageFE is
   signal pc_inter, pc_reg_in, pc_reg_out, sig_pc_plus_4, sig_4: std_logic_vector(31 downto 0);
 begin
 
-  sig_4 <= (3=>'1', others => '0');
+  sig_4 <= (2=>'1', others => '0');
   
   -- Architecture à compléter
   
