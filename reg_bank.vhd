@@ -8,7 +8,7 @@ END PACKAGE bus_mux_pkg;
 
 -------------------------------------------------
 
--- 32 bits Register (For PC storage and register files)
+-- 32 bits Register (For PC storage )
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
@@ -39,10 +39,45 @@ begin
     end if;
   end process;
 end architecture;
-          
+
 -------------------------------------------------
 
--- 4 bits Register (For PC storage and register files)
+-- 32 bits Register (For inter-stage buffers )
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+entity Reg32sync is
+  PORT(
+    source: in std_logic_vector(31 downto 0);
+    output : out std_logic_vector(31 downto 0);
+    wr, raz, clk : in std_logic
+    );
+end entity;
+
+architecture arch_reg_sync of Reg32sync is
+  signal sig : std_logic_vector(31 downto 0):=(others => '0');
+begin
+  output <= sig;
+  process(clk)
+  begin
+    if(rising_edge(clk)) then
+      if raz = '0' then
+        sig <= (others => '0');
+      else
+        if(wr = '1') then
+          sig <= source;    
+        end if;
+      end if;
+    end if;
+  end process;
+end architecture;
+
+
+-------------------------------------------------
+
+-- 4 bits Register (For inter-stage buffers)
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
@@ -62,10 +97,10 @@ begin
   output <= sig;
   process(clk)
   begin
-     if raz = '0' then
-      sig <= (others => '0');
-    else
-      if(rising_edge(clk)) then
+    if(rising_edge(clk)) then
+      if raz = '0' then
+        sig <= (others => '0');
+      else
         if(wr = '1') then
           sig <= source;    
         end if;
