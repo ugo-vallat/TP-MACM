@@ -26,7 +26,7 @@ architecture arch_reg of Reg32 is
   signal sig : std_logic_vector(31 downto 0):=(others => '0');
 begin
   output <= sig;
-  process(clk)
+  process(clk, raz)
   begin
     if raz = '0' then
       sig <= (others => '0');
