@@ -109,6 +109,74 @@ begin
   end process;
 end architecture;
 
+-------------------------------------------------
+
+-- 2 bits Register (For inter-stage buffers)
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+entity Reg2 is
+  PORT(
+    source: in std_logic_vector(1 downto 0);
+    output : out std_logic_vector(1 downto 0);
+    wr, raz, clk : in std_logic
+    );
+end entity;
+
+architecture arch_reg of Reg2 is
+  signal sig : std_logic_vector(1 downto 0):=(others => '0');
+begin
+  output <= sig;
+  process(clk)
+  begin
+    if(rising_edge(clk)) then
+      if raz = '0' then
+        sig <= (others => '0');
+      else
+        if(wr = '1') then
+          sig <= source;    
+        end if;
+      end if;
+    end if;
+  end process;
+end architecture;
+
+-------------------------------------------------
+
+-- 1 bit Register (For inter-stage buffers)
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+
+entity Reg1 is
+  PORT(
+    source: in std_logic;
+    output : out std_logic;
+    wr, raz, clk : in std_logic
+    );
+end entity;
+
+architecture arch_reg of Reg4 is
+  signal sig : std_logic:='0';
+begin
+  output <= sig;
+  process(clk)
+  begin
+    if(rising_edge(clk)) then
+      if raz = '0' then
+        sig <= '0';
+      else
+        if(wr = '1') then
+          sig <= source;    
+        end if;
+      end if;
+    end if;
+  end process;
+end architecture;
+
 
 -------------------------------------------------
 
