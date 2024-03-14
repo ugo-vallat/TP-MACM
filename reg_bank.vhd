@@ -216,7 +216,9 @@ begin
     if(init) then
       for i in 0 to 15 loop
         regs(i)<=(others => '0');
-      end loop;                 
+      end loop;
+    end if;
+    
     if(wr_reg='1' and rising_edge(clk)) then
       dest := to_integer(unsigned(dest_reg));
       regs(dest)<=data_i;
