@@ -213,7 +213,7 @@ begin
   process(clk, init)
     variable dest: integer;  
   begin
-    if(init) then
+    if(init='1') then
       for i in 0 to 15 loop
         regs(i)<=(others => '0');
       end loop;
