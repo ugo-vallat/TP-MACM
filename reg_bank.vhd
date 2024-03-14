@@ -159,7 +159,7 @@ entity Reg1 is
     );
 end entity;
 
-architecture arch_reg of Reg4 is
+architecture arch_reg of Reg1 is
   signal sig : std_logic:='0';
 begin
   output <= sig;
