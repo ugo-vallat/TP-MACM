@@ -197,6 +197,7 @@ ENTITY RegisterBank IS
 		dest_reg : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
 		data_i : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
                 pc_in : in STD_LOGIC_VECTOR(31 downto 0);
+                init : in STD_LOGIC; 
 		wr_reg : IN STD_LOGIC;
 		clk : IN STD_LOGIC
 	);
@@ -209,9 +210,13 @@ architecture arch_reg_bank of RegisterBank IS
 begin
   data_o_0 <= pc_in when to_integer(unsigned(s_reg_0)) = 15 else regs(to_integer(unsigned(s_reg_0)));
   data_o_1 <= pc_in when to_integer(unsigned(s_reg_1)) = 15 else regs(to_integer(unsigned(s_reg_1)));
-  process(clk)
+  process(clk, init)
     variable dest: integer;  
   begin
+    if(init) then
+      for i in 0 to 15 loop
+        regs(i)<=(others => '0');
+      end loop;                 
     if(wr_reg='1' and rising_edge(clk)) then
       dest := to_integer(unsigned(dest_reg));
       regs(dest)<=data_i;
