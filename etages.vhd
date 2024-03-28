@@ -35,7 +35,7 @@ end architecture;
 -- USE IEEE.NUMERIC_STD.ALL;
 
 -- entity etageDE is
--- end entity
+-- end entity;
 
 -- -------------------------------------------------
 
@@ -56,7 +56,7 @@ end architecture;
 -- USE IEEE.NUMERIC_STD.ALL;
 
 -- entity etageME is
--- end entity
+-- end entity;
 -- -------------------------------------------------
 
 -- -- Etage ER
@@ -66,4 +66,4 @@ end architecture;
 -- USE IEEE.NUMERIC_STD.ALL;
 
 -- entity etageER is
--- end entity
+-- end entity;
