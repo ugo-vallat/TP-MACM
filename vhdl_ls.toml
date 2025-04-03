@@ -1,0 +1,9 @@
+[libraries]
+defaultlib.files = [
+  'combi.vhd',
+  'etages.vhd',
+  'mem.vhd',
+  'proc.vhd',
+  'reg_bank.vhd',
+  'test_etage_fe.vhd'
+]

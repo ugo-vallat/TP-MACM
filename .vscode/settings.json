@@ -1,0 +1,5 @@
+{
+    "vhdlls.languageServer": "embedded",
+    "vhdlls.nonProjectFiles": "analyze",
+    "files.encoding": "utf8"
+}
