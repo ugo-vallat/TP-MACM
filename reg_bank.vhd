@@ -206,7 +206,6 @@ END ENTITY RegisterBank;
 
 architecture arch_reg_bank of RegisterBank IS
   signal regs : bus_mux_array(31 downto 0);
-
 begin
   data_o_0 <= pc_in when to_integer(unsigned(s_reg_0)) = 15 else regs(to_integer(unsigned(s_reg_0)));
   data_o_1 <= pc_in when to_integer(unsigned(s_reg_1)) = 15 else regs(to_integer(unsigned(s_reg_1)));

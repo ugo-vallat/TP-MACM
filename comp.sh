@@ -23,8 +23,8 @@ ghdl -e $test
 
 # Étape 3 : Simulation avec génération de trace VCD
 echo "[3/3] Simulation..."
-ghdl -r $test --vcd=sim.vcd
+ghdl -r $test --wave=sim.ghw --stop-time=200ns
 
 # Lancement de GTKWave
 echo "Lancement de GTKWave..."
-gtkwave sim.vcd &
+gtkwave sim.ghw &
