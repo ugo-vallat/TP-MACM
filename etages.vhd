@@ -194,21 +194,75 @@ end architecture;
   
 -- -------------------------------------------------
 
--- -- Etage ME
+-- Etage ME
 
--- LIBRARY IEEE;
--- USE IEEE.STD_LOGIC_1164.ALL;
--- USE IEEE.NUMERIC_STD.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
--- entity etageME is
--- end entity;
+entity etageME is
+    port(
+    -- depuis étage précédent
+        Res_ME, WD_ME : in std_logic_vector(31 downto 0) := (others => '0');
+        Op3_ME : in std_logic_vector(3 downto 0) := (others => '0');
+
+    -- signaux de contôle
+        clk, MemWr_Mem : in STD_LOGIC := '0';
+
+    -- sorties
+        Res_Mem_ME, Res_ALU_ME, Res_fwd_ME : out std_logic_vector(31 downto 0) := (others => '0');
+        Op3_ME_out : out std_logic_vector(3 downto 0) := (others => '0')
+  );
+end entity;
+  
+  
+architecture etageME_arch of etageME is
+begin
+
+    Res_ALU_ME <= Res_ME;
+    Res_fwd_ME <= Res_ME;
+    Op3_ME_out <= Op3_ME;
+
+    inst_data_mem: entity work.data_mem
+        port map (
+            addr => Res_ME,
+            clk => clk,
+            data => Res_Mem_ME,
+            WD => WD_ME,
+            WR => MemWr_Mem
+        );
+
+end architecture;
 -- -------------------------------------------------
 
--- -- Etage ER
+-- Etage ER
 
--- LIBRARY IEEE;
--- USE IEEE.STD_LOGIC_1164.ALL;
--- USE IEEE.NUMERIC_STD.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
--- entity etageER is
--- end entity;
+entity etageER is
+    port (
+        -- depuis étage précédent
+        Res_Mem_RE, Res_ALU_RE : in std_logic_vector(31 downto 0) := (others => '0');
+        Op3_RE : in std_logic_vector(3 downto 0) := (others => '0');
+
+        -- signaux de contôle
+        MemToReg_RE : in STD_LOGIC;
+
+        -- sorties
+        Res_RE : out std_logic_vector(31 downto 0) := (others => '0');
+        Op3_RE_out : out std_logic_vector(3 downto 0) := (others => '0')
+    );
+end entity;
+
+architecture etageER_arch of etageER is
+begin
+
+    Op3_RE_out <= Op3_RE;
+
+    with MemToReg_RE select
+        Res_RE <= Res_Mem_RE when '1',
+                    Res_ALU_RE when others;
+
+end architecture;
