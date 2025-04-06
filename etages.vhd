@@ -133,12 +133,65 @@ end architecture;
 
 -- -- Etage EX
 
--- LIBRARY IEEE;
--- USE IEEE.STD_LOGIC_1164.ALL;
--- USE IEEE.NUMERIC_STD.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
--- entity etageEX is
--- end entity
+entity etageEX is
+    port(
+    -- depuis étage précédent
+        Op1_EX, Op2_EX, ExtImm_EX, Res_fwd_ME, Res_fwd_ER : in std_logic_vector(31 downto 0) := (others => '0');
+        Op3_EX : in std_logic_vector(3 downto 0) := (others => '0');
+
+    -- signaux de contôle
+        EA_EX, EB_EX, ALUCtrl_EX : in STD_LOGIC_VECTOR(1 downto 0) := "00";
+        ALUSrc_EX : in STD_LOGIC;
+
+    -- sorties
+        Res_EX, WD_EX, npc_fw_br : out std_logic_vector(31 downto 0) := (others => '0');
+        CC, Op3_EX_out : out STD_LOGIC_VECTOR(3 downto 0) := (others => '0')
+  );
+end entity;
+  
+  
+architecture etageEX_arch of etageEX is
+    signal ALUOp1, Oper2, ALUOp2, res : std_logic_vector(31 downto 0) := (others => '0');
+begin
+
+    Res_EX <= res;
+    npc_fw_br <= res;
+    Op3_EX_out <= Op3_EX;
+    WD_EX <= Op2_EX;
+
+    inst_ALU: entity work.ALU
+        port map (
+            A => ALUOp1,
+            B => ALUOp2,
+            sel => ALUCtrl_EX,
+            Res => res,
+            CC => CC
+        );
+
+
+    with EA_EX select
+        ALUOp1 <= Op1_EX when "00",
+                    Res_fwd_ER when "01",
+                    Res_fwd_ME when "10",
+                    (others => 'Z') when others;
+    
+    with EB_EX select
+        Oper2 <= Op2_EX when "00",
+                    Res_fwd_ER when "01",
+                    Res_fwd_ME when "10",
+                    (others => 'Z') when others;
+    
+    with ALUSrc_EX select
+            ALUOp2 <= Oper2 when '0',
+                        ExtImm_EX when others;
+
+
+end architecture;
+  
 -- -------------------------------------------------
 
 -- -- Etage ME
