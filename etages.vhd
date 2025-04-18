@@ -235,13 +235,13 @@ begin
 end architecture;
 -- -------------------------------------------------
 
--- Etage ER
+-- Etage RE
 
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-entity etageER is
+entity etageRE is
     port (
         -- depuis étage précédent
         Res_Mem_RE, Res_ALU_RE : in std_logic_vector(31 downto 0) := (others => '0');
@@ -256,7 +256,7 @@ entity etageER is
     );
 end entity;
 
-architecture etageER_arch of etageER is
+architecture etageRE_arch of etageRE is
 begin
 
     Op3_RE_out <= Op3_RE;

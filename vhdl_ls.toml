@@ -7,5 +7,6 @@ defaultlib.files = [
   'reg_bank.vhd',
   'test_etage_fe.vhd',
   'test_etage_de.vhd',
-  'test_etage_ex.vhd'
+  'test_etage_ex.vhd',
+  'test_controle.vhd'
 ]
