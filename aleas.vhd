@@ -8,14 +8,14 @@ USE IEEE.NUMERIC_STD.ALL;
 
 entity gestionAleas is
     port (
-      a1, a2, op3_ME_out, op3_RE_out : in std_logic_vector(3 downto 0);
-      RegWr_Mem, RegWr_RE : in std_logic;
-      Reg1, Reg2, op3_EX_out : in std_logic_vector(3 downto 0);
-      MemToReg_EX : in std_logic;
-      PCSrc_DE, PCSrc_EX, PCSrc_ME, PCSrc_ER, Bpris_EX : in std_logic;
+      a1, a2, op3_ME_out, op3_RE_out : in std_logic_vector(3 downto 0) := (others => '0');
+      RegWr_Mem, RegWr_RE : in std_logic := '0';
+      Reg1, Reg2, op3_EX_out : in std_logic_vector(3 downto 0) := (others => '0');
+      MemToReg_EX : in std_logic := '0';
+      PCSrc_DE, PCSrc_EX, PCSrc_ME, PCSrc_ER, Bpris_EX : in std_logic := '0';
   
       EA_EX, EB_EX : out std_logic_vector(1 downto 0);  
-      Gel_LI, En_DI, Clr_EX, Clr_DI : out std_logic
+      Gel_LI, Gel_DI, Clr_EX, Clr_DI : out std_logic
     );
   end entity;
   
@@ -25,7 +25,7 @@ begin
 process(a1, a2, op3_ME_out, op3_RE_out, RegWr_Mem, RegWr_RE,
         Reg1, Reg2, op3_EX_out, MemToReg_EX,
         PCSrc_DE, PCSrc_EX, PCSrc_ME, PCSrc_ER, Bpris_EX)
-    variable stall : std_logic;
+    variable stall : std_logic := '0';
 begin
 
     -- === Forwarding EA_EX ===
@@ -55,7 +55,7 @@ begin
 
     -- === Contrôle pipeline ===
     Gel_LI <= not (stall or PCSrc_DE or PCSrc_EX or PCSrc_ME);
-    En_DI  <= not stall;
+    Gel_DI  <= stall;
     Clr_EX <= not (stall or Bpris_EX);
     Clr_DI <= not (PCSrc_DE or PCSrc_EX or PCSrc_ME or PCSrc_ER or Bpris_EX);
 

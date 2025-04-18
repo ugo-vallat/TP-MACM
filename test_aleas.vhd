@@ -6,11 +6,11 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
 -- Definition de l'entite
-entity test_controle is
-end test_controle;
+entity test_aleas is
+end test_aleas;
 
 -- Definition de l'architecture
-architecture behavior of test_controle is
+architecture behavior of test_aleas is
 
 -- definition de constantes de test
 	constant TIMEOUT 	: time := 500 ns; -- timeout de la simulation
@@ -41,7 +41,7 @@ signal CC_out : std_logic_vector(3 downto 0) := (others => '0');
 signal CondEx : STD_LOGIC := '0';
 
 -- Signaux proc
-signal init, ALUSrc_EX, MemWr_Mem, MemWr_RE_tmp, PCSrc_ER, Bpris_EX, Gel_LI, Gel_DI, RAZ_DI, RegWR, Clr_EX_tmp : std_logic := '0';
+signal init, ALUSrc_EX, MemWr_Mem, MemWr_RE_tmp, PCSrc_ER, Bpris_EX, Gel_LI, Gel_DI, RAZ_DI, Clr_EX_tmp : std_logic := '0';
 signal RegSrc, EA_EX_tmp, EB_EX_tmp, immSrc, ALUCtrl_EX : std_logic_vector(1 downto 0):= (others => '0'); 
 signal instr_DE: std_logic_vector(31 downto 0) := (others => '0');
 signal a1_tmp, a2_tmp, rs1_tmp, rs2_tmp, op3_EX_out_tmp, op3_ME_out_tmp, op3_RE_out_tmp: std_logic_vector(3 downto 0) := (others => '0');
@@ -137,10 +137,10 @@ test_gestionAleas : entity work.gestionAleas
   port map (
     a1           => a1_tmp,
     a2           => a2_tmp,
-    op3_ME_out   => op3_ME_out_tmp,
-    op3_RE_out   => op3_RE_out_tmp,
     RegWr_Mem    => RegWr_ME,
+    op3_ME_out   => op3_ME_out_tmp,
     RegWr_RE     => RegWr_RE,
+    op3_RE_out   => op3_RE_out_tmp,
     Reg1         => rs1_tmp,
     Reg2         => rs2_tmp,
     op3_EX_out   => op3_EX_out_tmp,
@@ -153,7 +153,7 @@ test_gestionAleas : entity work.gestionAleas
     EA_EX        => EA_EX_tmp,
     EB_EX        => EB_EX_tmp,
     Gel_LI       => Gel_LI,
-    En_DI        => En_DI,
+    Gel_DI       => Gel_DI,
     Clr_EX       => Clr_EX_tmp,
     Clr_DI       => Gel_DI 
     );
@@ -207,16 +207,9 @@ begin
 
 
     init <= '1';
-    Gel_LI <= '1';
-    Gel_DI <= '1';
-    RAZ_DI <= '1';
 	wait for clkpulse*2;
-
     
     init <= '0';
-    Gel_LI <= '0';
-    Gel_DI <= '0';
-    RAZ_DI <= '0';
 	wait for clkpulse*2;
 
     wait for clkpulse*30;
