@@ -12,6 +12,7 @@ ghdl -a reg_bank.vhd
 ghdl -a combi.vhd
 ghdl -a etages.vhd
 ghdl -a proc.vhd
+ghdl -a aleas.vhd
 ghdl -a $test.vhd
 
 # Facultatif : ajouter d'autres fichiers si besoin

@@ -133,6 +133,31 @@ port map (
     op3_RE_out      => op3_RE_out_tmp
     );
 
+test_gestionAleas : entity work.gestionAleas
+  port map (
+    a1           => a1_tmp,
+    a2           => a2_tmp,
+    op3_ME_out   => op3_ME_out_tmp,
+    op3_RE_out   => op3_RE_out_tmp,
+    RegWr_Mem    => RegWr_ME,
+    RegWr_RE     => RegWr_RE,
+    Reg1         => rs1_tmp,
+    Reg2         => rs2_tmp,
+    op3_EX_out   => op3_EX_out_tmp,
+    MemToReg_EX  => MemToReg_EX,
+    PCSrc_DE     => PCSrc_DE,
+    PCSrc_EX     => PCSrc_EX,
+    PCSrc_ME     => PCSrc_ME,
+    PCSrc_ER     => PCSrc_ER,
+    Bpris_EX     => Bpris_EX,
+    EA_EX        => EA_EX_tmp,
+    EB_EX        => EB_EX_tmp,
+    Gel_LI       => Gel_LI,
+    En_DI        => En_DI,
+    Clr_EX       => Clr_EX_tmp,
+    Clr_DI       => Gel_DI 
+    );
+
 P_DE: process(clk)
 begin
 
